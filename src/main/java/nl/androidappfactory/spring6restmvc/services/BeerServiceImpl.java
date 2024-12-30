@@ -12,11 +12,11 @@ import java.util.*;
 @Service
 @Slf4j
 public class BeerServiceImpl implements BeerService {
-    private final Map<UUID, Beer> beers = new HashMap<>();
+    private final Map<Integer, Beer> beers = new HashMap<>();
 
     public BeerServiceImpl() {
         Beer beer1 = Beer.builder()
-                .id(UUID.randomUUID())
+                .id(1)
                 .version(1)
                 .beerName("Hertog Jan")
                 .beerStyle(BeerStyle.LAGER)
@@ -28,7 +28,7 @@ public class BeerServiceImpl implements BeerService {
                 .build();
 
         Beer beer2 = Beer.builder()
-                .id(UUID.randomUUID())
+                .id(2)
                 .version(1)
                 .beerName("Bavaria")
                 .beerStyle(BeerStyle.LAGER)
@@ -40,7 +40,7 @@ public class BeerServiceImpl implements BeerService {
                 .build();
 
         Beer beer3 = Beer.builder()
-                .id(UUID.randomUUID())
+                .id(3)
                 .version(1)
                 .beerName("Corona")
                 .beerStyle(BeerStyle.PILSNER)
@@ -59,8 +59,8 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Beer getBeerById(UUID id) {
-        return null;
+    public Beer getBeerById(int id) {
+        return beers.get(id);
     }
 
     @Override
