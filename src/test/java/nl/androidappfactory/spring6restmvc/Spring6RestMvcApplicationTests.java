@@ -1,4 +1,4 @@
-package guru.springframework.spring6restmvc;
+package nl.androidappfactory.spring6restmvc;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -8,7 +8,7 @@
         <version>3.4.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>guru.springframework</groupId>
+    <groupId>nl.androidappfactory</groupId>
     <artifactId>spring-6-rest-mvc</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>spring-6-rest-mvc</name>

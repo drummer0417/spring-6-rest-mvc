@@ -1,4 +1,4 @@
-package guru.springframework.spring6restmvc;
+package nl.androidappfactory.spring6restmvc;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
