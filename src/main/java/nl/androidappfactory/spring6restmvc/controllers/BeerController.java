@@ -4,12 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.androidappfactory.spring6restmvc.model.Beer;
 import nl.androidappfactory.spring6restmvc.services.BeerService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Slf4j
@@ -26,11 +27,22 @@ public class BeerController {
         return beers;
     }
 
-    @RequestMapping(value = "{beer-id}", method = RequestMethod.GET)
-    public Beer getBeerById(@PathVariable("beer-id") int id) {
+    @GetMapping
+    @RequestMapping(value = "{beer-id}")
+//    @RequestMapping(value = "{beer-id}", method = RequestMethod.GET)
+    public Beer getBeerById(@PathVariable("beer-id") UUID id) {
 
         log.debug("Get Beer by Id - in controller");
 
         return beerService.getBeerById(id);
+    }
+
+    @PostMapping
+    public ResponseEntity addBeer(@RequestBody Beer beer) {
+        Beer savedBeer = beerService.addBeer(beer);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.LOCATION, "/api/v1/beer/" + savedBeer.getId());
+        log.debug("BeerController.addBeer(), name: {}", savedBeer);
+        return new ResponseEntity<Beer>(headers, HttpStatus.CREATED);
     }
 }

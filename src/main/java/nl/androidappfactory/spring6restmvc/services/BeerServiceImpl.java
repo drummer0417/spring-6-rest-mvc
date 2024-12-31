@@ -12,11 +12,11 @@ import java.util.*;
 @Service
 @Slf4j
 public class BeerServiceImpl implements BeerService {
-    private final Map<Integer, Beer> beers = new HashMap<>();
+    private final Map<UUID, Beer> beers = new HashMap<>();
 
     public BeerServiceImpl() {
         Beer beer1 = Beer.builder()
-                .id(1)
+                .id(UUID.randomUUID())
                 .version(1)
                 .beerName("Hertog Jan")
                 .beerStyle(BeerStyle.LAGER)
@@ -28,7 +28,7 @@ public class BeerServiceImpl implements BeerService {
                 .build();
 
         Beer beer2 = Beer.builder()
-                .id(2)
+                .id(UUID.randomUUID())
                 .version(1)
                 .beerName("Bavaria")
                 .beerStyle(BeerStyle.LAGER)
@@ -40,7 +40,7 @@ public class BeerServiceImpl implements BeerService {
                 .build();
 
         Beer beer3 = Beer.builder()
-                .id(3)
+                .id(UUID.randomUUID())
                 .version(1)
                 .beerName("Corona")
                 .beerStyle(BeerStyle.PILSNER)
@@ -59,12 +59,29 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Beer getBeerById(int id) {
+    public Beer getBeerById(UUID id) {
         return beers.get(id);
     }
 
     @Override
     public List<Beer> getAllBeers() {
         return new ArrayList<>(beers.values());
+    }
+
+    @Override
+    public Beer addBeer(Beer beer) {
+        Beer newBeer = Beer.builder()
+                .id(UUID.randomUUID())
+                .version(1)
+                .createdDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .beerName(beer.getBeerName())
+                .beerStyle(beer.getBeerStyle())
+                .upc(beer.getUpc())
+                .price(beer.getPrice())
+                .quantityOnHand(beer.getQuantityOnHand())
+                .build();
+        beers.put(newBeer.getId(), newBeer);
+        return newBeer;
     }
 }

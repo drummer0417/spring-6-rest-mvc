@@ -5,20 +5,17 @@ import nl.androidappfactory.spring6restmvc.model.Customer;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
 public class CustomerServiceImpl implements CustomerService {
 
-    private final Map<Integer, Customer> customers;
+    private final Map<UUID, Customer> customers;
 
     public CustomerServiceImpl() {
         Customer cutomer1 = Customer.builder()
-                .id(1)
+                .id(UUID.randomUUID())
                 .name("Hans")
                 .version("1.0")
                 .createdAt(LocalDateTime.now())
@@ -26,7 +23,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
 
         Customer cutomer2 = Customer.builder()
-                .id(2)
+                .id(UUID.randomUUID())
                 .name("Jacky")
                 .version("1.0")
                 .createdAt(LocalDateTime.now())
@@ -34,7 +31,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
 
         Customer cutomer3 = Customer.builder()
-                .id(3)
+                .id(UUID.randomUUID())
                 .name("Kees")
                 .version("1.0")
                 .createdAt(LocalDateTime.now())
@@ -54,7 +51,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getById(int id) {
+    public Customer getById(UUID id) {
         return customers.get(id);
+    }
+
+    @Override
+    public Customer addCustomer(Customer customer) {
+        Customer newCustomer = Customer.builder()
+                .id(UUID.randomUUID())
+                .version("1.0")
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .name(customer.getName())
+                .build();
+        customers.put(newCustomer.getId(), newCustomer);
+        return newCustomer;
     }
 }
