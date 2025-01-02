@@ -6,6 +6,7 @@ import nl.androidappfactory.spring6restmvc.services.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.times;
@@ -23,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -38,6 +41,11 @@ class CustomerControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Captor
+    ArgumentCaptor<Customer> customerCaptor;
+    @Captor
+    ArgumentCaptor<UUID> uuidCaptor;
 
     @MockitoBean
     private CustomerService customerService;
@@ -105,9 +113,23 @@ class CustomerControllerTest {
         mockMvc.perform(delete("/api/v1/customer/" + testCustomer.getId()))
                 .andExpect(status().isNoContent());
 
-        ArgumentCaptor<UUID> uuidCaptor = ArgumentCaptor.forClass(UUID.class);
         verify(customerService, times(ONCE)).delete(uuidCaptor.capture());
         assertThat(uuidCaptor.getValue()).isEqualTo(testCustomer.getId());
+    }
+
+    @Test
+    public void pstchCusomer() throws Exception {
+        Customer newCustomer  = Customer.builder().name("Klaas").build();
+        Customer testcustomer = testCustomers.getFirst();
+        mockMvc.perform(patch("/api/v1/customer/" + testcustomer.getId())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newCustomer)))
+                .andExpect(status().isNoContent());
+
+        verify(customerService, times(ONCE)).patchCustomer(uuidCaptor.capture(), customerCaptor.capture());
+        assertThat(uuidCaptor.getValue()).isEqualTo(testcustomer.getId());
+        assertThat(customerCaptor.getValue().getName()).isEqualTo("Klaas");
     }
 
     private List<Customer> createTestCustomers() {
