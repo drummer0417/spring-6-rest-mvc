@@ -44,9 +44,16 @@ public class CustomerController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    @RequestMapping(value = "{id}", method = RequestMethod.PATCH)
+    public ResponseEntity patchCustomer(@PathVariable("id") UUID id, @RequestBody Customer customer) {
+        customerService.patchCustomer(id, customer);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity deleteCustomer(@PathVariable("id") UUID id) {
         customerService.delete(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
+
 }

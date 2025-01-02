@@ -1,8 +1,10 @@
 package nl.androidappfactory.spring6restmvc.services;
 
+import ch.qos.logback.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import nl.androidappfactory.spring6restmvc.model.Customer;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -82,5 +84,17 @@ public class CustomerServiceImpl implements CustomerService {
         customers.remove(id);
         log.debug(String.format("CustomerService deleted %s", id));
         log.debug(String.format("CustomerService deleted. # customers %s", customers.size()));
+    }
+
+    @Override
+    public void patchCustomer(UUID id, Customer customer) {
+        Customer currentCustomer = customers.get(id);
+        if (StringUtils.hasText(customer.getName())) {
+            currentCustomer.setName(customer.getName());
+        }
+        if (StringUtils.hasText(customer.getVersion())) {
+            currentCustomer.setVersion(customer.getVersion());
+        }
+        currentCustomer.setModifiedAt(LocalDateTime.now());
     }
 }
