@@ -118,7 +118,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    public void pstchCusomer() throws Exception {
+    public void patchCusomer() throws Exception {
         Customer newCustomer  = Customer.builder().name("Klaas").build();
         Customer testcustomer = testCustomers.getFirst();
         mockMvc.perform(patch("/api/v1/customer/" + testcustomer.getId())
