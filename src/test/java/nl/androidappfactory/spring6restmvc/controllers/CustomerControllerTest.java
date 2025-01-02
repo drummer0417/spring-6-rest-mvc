@@ -17,14 +17,21 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = CustomerController.class)
 class CustomerControllerTest {
 
+    private static final int ONCE = 1;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -78,6 +85,18 @@ class CustomerControllerTest {
                 .andExpect(status().isCreated());
     }
 
+    @Test
+    public void putCustomer() throws Exception {
+        Customer testCustomer = testCustomers.getFirst();
+        mockMvc.perform(put("/api/v1/customer/" + testCustomer.getId())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testCustomer)))
+                .andExpect(status().isNoContent());
+        
+        verify(customerService, times(ONCE)).updateCustomer(testCustomer.getId(), testCustomer);
+    }
+    
     private List<Customer> createTestCustomers() {
         Customer customer1 = Customer.builder()
                 .id(UUID.fromString("1638fc3b-ba52-4bdb-8698-f8739728b415"))
