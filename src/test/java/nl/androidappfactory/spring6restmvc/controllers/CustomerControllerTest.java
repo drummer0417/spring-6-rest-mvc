@@ -1,7 +1,9 @@
 package nl.androidappfactory.spring6restmvc.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.androidappfactory.spring6restmvc.model.Customer;
 import nl.androidappfactory.spring6restmvc.services.CustomerService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import java.util.UUID;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = CustomerController.class)
@@ -24,18 +27,27 @@ class CustomerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private CustomerService customerService;
 
+    List<Customer> testCustomers;
+
+    @BeforeEach
+    void setUp() {
+        testCustomers = createTestCustomers();
+    }
+
     @Test
     void getCustomer() throws Exception {
         // given
-        Customer testCustomer = createTestCustomers().get(0);
+        Customer testCustomer = testCustomers.getFirst();
 
         Mockito.when(customerService.getById(testCustomer.getId())).thenReturn(testCustomer);
         mockMvc.perform(get("/api/v1/customer/" + testCustomer.getId())
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is("1638fc3b-ba52-4bdb-8698-f8739728b415")))
@@ -45,14 +57,25 @@ class CustomerControllerTest {
 
     @Test
     void getAllCustomers() throws Exception {
-        List<Customer> testCustomers = createTestCustomers();
-
         when(customerService.getAll()).thenReturn(testCustomers);
         mockMvc.perform(get("/api/v1/customer")
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(4)));
+    }
+
+    @Test
+    public void postCustomer() throws Exception {
+        Customer testCustomer = testCustomers.getFirst();
+
+        when(customerService.addCustomer(testCustomer)).thenReturn(testCustomer);
+        mockMvc.perform(post("/api/v1/customer")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testCustomer)))
+                .andExpect(header().exists("Location"))
+                .andExpect(status().isCreated());
     }
 
     private List<Customer> createTestCustomers() {
