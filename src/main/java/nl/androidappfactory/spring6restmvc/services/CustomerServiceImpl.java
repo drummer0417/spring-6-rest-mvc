@@ -76,4 +76,11 @@ public class CustomerServiceImpl implements CustomerService {
         existingCustomer.setVersion("2.0");
         customers.put(id, existingCustomer);
     }
+
+    @Override
+    public void delete(UUID id) {
+        customers.remove(id);
+        log.debug(String.format("CustomerService deleted %s", id));
+        log.debug(String.format("CustomerService deleted. # customers %s", customers.size()));
+    }
 }
