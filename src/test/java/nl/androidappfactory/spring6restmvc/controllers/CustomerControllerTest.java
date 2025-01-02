@@ -5,6 +5,7 @@ import nl.androidappfactory.spring6restmvc.model.Customer;
 import nl.androidappfactory.spring6restmvc.services.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,11 +16,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -93,10 +95,21 @@ class CustomerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testCustomer)))
                 .andExpect(status().isNoContent());
-        
+
         verify(customerService, times(ONCE)).updateCustomer(testCustomer.getId(), testCustomer);
     }
-    
+
+    @Test
+    public void deleteCustomer() throws Exception {
+        Customer testCustomer = testCustomers.getFirst();
+        mockMvc.perform(delete("/api/v1/customer/" + testCustomer.getId()))
+                .andExpect(status().isNoContent());
+
+        ArgumentCaptor<UUID> uuidCaptor = ArgumentCaptor.forClass(UUID.class);
+        verify(customerService, times(ONCE)).delete(uuidCaptor.capture());
+        assertThat(uuidCaptor.getValue()).isEqualTo(testCustomer.getId());
+    }
+
     private List<Customer> createTestCustomers() {
         Customer customer1 = Customer.builder()
                 .id(UUID.fromString("1638fc3b-ba52-4bdb-8698-f8739728b415"))
