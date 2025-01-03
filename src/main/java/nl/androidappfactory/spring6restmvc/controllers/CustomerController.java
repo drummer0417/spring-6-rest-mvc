@@ -14,46 +14,55 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/customer")
+//@RequestMapping("/api/v1/customer")
 @AllArgsConstructor
 public class CustomerController {
     private CustomerService customerService;
 
-    @RequestMapping(value = "{customer-id}", method = RequestMethod.GET)
+    public static final String CUSTOMER_PATH = "/api/v1/customer";
+    public static final String CUSTOMER_PATH_ID = CUSTOMER_PATH + "/{customer-id}";
+
+    @GetMapping(CUSTOMER_PATH_ID)
     public Customer getCustomer(@PathVariable("customer-id") UUID id) {
-        return customerService.getById(id);
+        return customerService.getById(id).orElseThrow(NotFoundException::new);
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping(CUSTOMER_PATH)
     public List<Customer> getAllCustomers() {
         return customerService.getAll();
     }
 
-    @PostMapping
-    public ResponseEntity createCustomer(@RequestBody Customer customer) {
+    @PostMapping(CUSTOMER_PATH)
+    public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
         Customer savedCustomer = customerService.addCustomer(customer);
         log.info("New customer created: {}", savedCustomer);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/v1/customer/" + savedCustomer.getId().toString());
-        return new ResponseEntity(headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.PUT)
-    public ResponseEntity updateCustomer(@PathVariable("id") UUID id, @RequestBody Customer customer) {
+    @PutMapping(value = CUSTOMER_PATH_ID)
+    public ResponseEntity<Customer> updateCustomer(@PathVariable("customer-id") UUID id, @RequestBody Customer customer) {
         customerService.updateCustomer(id, customer);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.PATCH)
-    public ResponseEntity patchCustomer(@PathVariable("id") UUID id, @RequestBody Customer customer) {
+    @PatchMapping(CUSTOMER_PATH_ID)
+    public ResponseEntity<Customer> patchCustomer(@PathVariable("customer-id") UUID id, @RequestBody Customer customer) {
         customerService.patchCustomer(id, customer);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity deleteCustomer(@PathVariable("id") UUID id) {
+    @DeleteMapping(CUSTOMER_PATH_ID)
+    public ResponseEntity<Customer> deleteCustomer(@PathVariable("customer-id") UUID id) {
         customerService.delete(id);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    // moved mathod below to the ExceptionController so it works global (i.e. also for BeerController)
+//    @ExceptionHandler(NotFoundException.class)
+//    public ResponseEntity handleNotFoundException () {
+//        log.debug("in handleNotFoundException.................. ");
+//        return ResponseEntity.notFound().build();
+//    }
 }

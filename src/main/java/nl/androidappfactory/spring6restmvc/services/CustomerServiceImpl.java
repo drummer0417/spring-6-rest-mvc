@@ -1,6 +1,5 @@
 package nl.androidappfactory.spring6restmvc.services;
 
-import ch.qos.logback.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import nl.androidappfactory.spring6restmvc.model.Customer;
 import org.springframework.stereotype.Service;
@@ -53,8 +52,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getById(UUID id) {
-        return customers.get(id);
+    public Optional<Customer> getById(UUID id) {
+        return Optional.of(customers.get(id));
     }
 
     @Override

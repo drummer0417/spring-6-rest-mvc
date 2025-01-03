@@ -16,10 +16,14 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import static nl.androidappfactory.spring6restmvc.controllers.CustomerController.CUSTOMER_PATH;
+import static nl.androidappfactory.spring6restmvc.controllers.CustomerController.CUSTOMER_PATH_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,8 +66,8 @@ class CustomerControllerTest {
         // given
         Customer testCustomer = testCustomers.getFirst();
 
-        Mockito.when(customerService.getById(testCustomer.getId())).thenReturn(testCustomer);
-        mockMvc.perform(get("/api/v1/customer/" + testCustomer.getId())
+        Mockito.when(customerService.getById(testCustomer.getId())).thenReturn(Optional.of(testCustomer));
+        mockMvc.perform(get(CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -75,7 +79,7 @@ class CustomerControllerTest {
     @Test
     void getAllCustomers() throws Exception {
         when(customerService.getAll()).thenReturn(testCustomers);
-        mockMvc.perform(get("/api/v1/customer")
+        mockMvc.perform(get(CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -87,7 +91,7 @@ class CustomerControllerTest {
         Customer testCustomer = testCustomers.getFirst();
 
         when(customerService.addCustomer(testCustomer)).thenReturn(testCustomer);
-        mockMvc.perform(post("/api/v1/customer")
+        mockMvc.perform(post(CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCustomer)))
@@ -98,7 +102,7 @@ class CustomerControllerTest {
     @Test
     public void putCustomer() throws Exception {
         Customer testCustomer = testCustomers.getFirst();
-        mockMvc.perform(put("/api/v1/customer/" + testCustomer.getId())
+        mockMvc.perform(put(CUSTOMER_PATH_ID, testCustomer.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testCustomer)))
@@ -110,7 +114,7 @@ class CustomerControllerTest {
     @Test
     public void deleteCustomer() throws Exception {
         Customer testCustomer = testCustomers.getFirst();
-        mockMvc.perform(delete("/api/v1/customer/" + testCustomer.getId()))
+        mockMvc.perform(delete(CUSTOMER_PATH_ID,testCustomer.getId()))
                 .andExpect(status().isNoContent());
 
         verify(customerService, times(ONCE)).delete(uuidCaptor.capture());
@@ -121,7 +125,7 @@ class CustomerControllerTest {
     public void patchCusomer() throws Exception {
         Customer newCustomer  = Customer.builder().name("Klaas").build();
         Customer testcustomer = testCustomers.getFirst();
-        mockMvc.perform(patch("/api/v1/customer/" + testcustomer.getId())
+        mockMvc.perform(patch(CUSTOMER_PATH_ID, testcustomer.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newCustomer)))
@@ -130,6 +134,30 @@ class CustomerControllerTest {
         verify(customerService, times(ONCE)).patchCustomer(uuidCaptor.capture(), customerCaptor.capture());
         assertThat(uuidCaptor.getValue()).isEqualTo(testcustomer.getId());
         assertThat(customerCaptor.getValue().getName()).isEqualTo("Klaas");
+    }
+
+    @Test
+    public void customerNotFoundException() throws Exception {
+        when(customerService.getById(any(UUID.class))).thenReturn(Optional.empty());
+
+        mockMvc.perform(get(CUSTOMER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void customerIllegalArgumentException() throws Exception {
+        when(customerService.getById(any(UUID.class))).thenThrow(IllegalArgumentException.class);
+
+        mockMvc.perform(get(CUSTOMER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void customerRuntimeException() throws Exception {
+        when(customerService.getById(any(UUID.class))).thenThrow(ArrayIndexOutOfBoundsException.class);
+
+        mockMvc.perform(get(CUSTOMER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isInternalServerError());
     }
 
     private List<Customer> createTestCustomers() {
