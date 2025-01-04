@@ -1,7 +1,7 @@
 package nl.androidappfactory.spring6restmvc.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.androidappfactory.spring6restmvc.model.Customer;
+import nl.androidappfactory.spring6restmvc.model.CustomerDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Slf4j
 public class ExceptionController {
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Customer> handleNotFoundException() {
+    public ResponseEntity<CustomerDTO> handleNotFoundException() {
         log.debug("in ExceptionController to handle NotFoundException.................. ");
         return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Customer> handleIllegalArgumentException() {
+    public ResponseEntity<CustomerDTO> handleIllegalArgumentException() {
         log.debug("in ExceptionController to handle IllegalArgumentException.............. ");
         return ResponseEntity.badRequest().build();
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Customer> handleRuntimeException() {
+    public ResponseEntity<CustomerDTO> handleRuntimeException() {
         log.debug("in ExceptionController to handle RuntimeException.............. ");
         return ResponseEntity.internalServerError().build();
     }

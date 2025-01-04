@@ -2,7 +2,8 @@ package nl.androidappfactory.spring6restmvc.controllers;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.androidappfactory.spring6restmvc.model.Beer;
+import nl.androidappfactory.spring6restmvc.entities.Beer;
+import nl.androidappfactory.spring6restmvc.model.BeerDTO;
 import nl.androidappfactory.spring6restmvc.services.BeerService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,27 +22,27 @@ public class BeerController {
     private final BeerService beerService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<Beer> getAllBeers() {
-        List<Beer> beers = beerService.getAllBeers();
-        log.debug("BeerController.getAllBeers(): {}", beers);
-        return beers;
+    public List<BeerDTO> getAllBeers() {
+        List<BeerDTO> beerDTOS = beerService.getAllBeers();
+        log.debug("BeerController.getAllBeers(): {}", beerDTOS);
+        return beerDTOS;
     }
 
     @GetMapping
     @RequestMapping(value = "{beer-id}")
-    public Beer getBeerById(@PathVariable("beer-id") UUID id) {
+    public BeerDTO getBeerById(@PathVariable("beer-id") UUID id) {
 
         log.debug("Get Beer by Id - in controller");
 
-        return beerService.getBeerById(id);
+        return beerService.getBeerById(id).orElseThrow(NotFoundException::new);
     }
 
     @PostMapping
-    public ResponseEntity addBeer(@RequestBody Beer beer) {
-        Beer savedBeer = beerService.addBeer(beer);
+    public ResponseEntity<BeerDTO> addBeer(@RequestBody BeerDTO beerDTO) {
+        BeerDTO savedBeerDTO = beerService.addBeer(beerDTO);
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.LOCATION, "/api/v1/beer/" + savedBeer.getId());
-        log.debug("BeerController.addBeer(), name: {}", savedBeer);
-        return new ResponseEntity<Beer>(headers, HttpStatus.CREATED);
+        headers.add(HttpHeaders.LOCATION, "/api/v1/beer/" + savedBeerDTO.getId());
+        log.debug("BeerController.addBeer(), name: {}", savedBeerDTO);
+        return new ResponseEntity<BeerDTO>(headers, HttpStatus.CREATED);
     }
 }

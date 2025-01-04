@@ -1,6 +1,6 @@
 package nl.androidappfactory.spring6restmvc.controllers;
 
-import nl.androidappfactory.spring6restmvc.model.Beer;
+import nl.androidappfactory.spring6restmvc.model.BeerDTO;
 import nl.androidappfactory.spring6restmvc.model.BeerStyle;
 import nl.androidappfactory.spring6restmvc.services.BeerService;
 import nl.androidappfactory.spring6restmvc.services.BeerServiceImpl;
@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
@@ -34,16 +35,16 @@ class BeerControllerTest {
 
     @Test
     public void testGetBeer() throws Exception {
-        Beer testBeer = createBeer();
+        BeerDTO testBeerDTO = createBeer();
 
         // when
-        when(beerService.getBeerById(testBeer.getId())).thenReturn(testBeer);
-        mockMvc.perform(get("/api/v1/beer/" + testBeer.getId())
+        when(beerService.getBeerById(testBeerDTO.getId())).thenReturn(Optional.of(testBeerDTO));
+        mockMvc.perform(get("/api/v1/beer/" + testBeerDTO.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(testBeer.getId().toString())))
-                .andExpect(jsonPath("$.beerName", is(testBeer.getBeerName())))
+                .andExpect(jsonPath("$.id", is(testBeerDTO.getId().toString())))
+                .andExpect(jsonPath("$.beerName", is(testBeerDTO.getBeerName())))
                 .andExpect(jsonPath("$.price", is(9.99)))
         ;
     }
@@ -51,9 +52,9 @@ class BeerControllerTest {
     @Test
     public void testListBeer() throws Exception {
 
-        List<Beer> beers = beerServiceImpl.getAllBeers();
+        List<BeerDTO> beerDTOS = beerServiceImpl.getAllBeers();
 
-        when(beerService.getAllBeers()).thenReturn(beers);
+        when(beerService.getAllBeers()).thenReturn(beerDTOS);
         mockMvc.perform(get("/api/v1/beer")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -61,8 +62,8 @@ class BeerControllerTest {
                 .andExpect(jsonPath("$.length()", is(3)));
     }
 
-    private Beer createBeer() {
-        return Beer.builder()
+    private BeerDTO createBeer() {
+        return BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .beerName("Corona")

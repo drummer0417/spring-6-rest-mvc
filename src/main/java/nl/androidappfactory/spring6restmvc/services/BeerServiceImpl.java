@@ -1,7 +1,7 @@
 package nl.androidappfactory.spring6restmvc.services;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.androidappfactory.spring6restmvc.model.Beer;
+import nl.androidappfactory.spring6restmvc.model.BeerDTO;
 import nl.androidappfactory.spring6restmvc.model.BeerStyle;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +12,10 @@ import java.util.*;
 @Service
 @Slf4j
 public class BeerServiceImpl implements BeerService {
-    private final Map<UUID, Beer> beers = new HashMap<>();
+    private final Map<UUID, BeerDTO> beers = new HashMap<>();
 
     public BeerServiceImpl() {
-        Beer beer1 = Beer.builder()
+        BeerDTO beerDTO1 = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .beerName("Hertog Jan")
@@ -27,7 +27,7 @@ public class BeerServiceImpl implements BeerService {
                 .updateDate(LocalDateTime.now())
                 .build();
 
-        Beer beer2 = Beer.builder()
+        BeerDTO beerDTO2 = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .beerName("Bavaria")
@@ -39,7 +39,7 @@ public class BeerServiceImpl implements BeerService {
                 .updateDate(LocalDateTime.now())
                 .build();
 
-        Beer beer3 = Beer.builder()
+        BeerDTO beerDTO3 = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .beerName("Corona")
@@ -51,37 +51,37 @@ public class BeerServiceImpl implements BeerService {
                 .updateDate(LocalDateTime.now())
                 .build();
 
-        beers.put(beer1.getId(), beer1);
-        beers.put(beer2.getId(), beer2);
-        beers.put(beer3.getId(), beer3);
+        beers.put(beerDTO1.getId(), beerDTO1);
+        beers.put(beerDTO2.getId(), beerDTO2);
+        beers.put(beerDTO3.getId(), beerDTO3);
 
         log.debug(String.format("Created %s Beers", beers.size()));
     }
 
     @Override
-    public Beer getBeerById(UUID id) {
-        return beers.get(id);
+    public Optional<BeerDTO> getBeerById(UUID id) {
+        return Optional.of(beers.get(id));
     }
 
     @Override
-    public List<Beer> getAllBeers() {
+    public List<BeerDTO> getAllBeers() {
         return new ArrayList<>(beers.values());
     }
 
     @Override
-    public Beer addBeer(Beer beer) {
-        Beer newBeer = Beer.builder()
+    public BeerDTO addBeer(BeerDTO beerDTO) {
+        BeerDTO newBeerDTO = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .createdDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
-                .beerName(beer.getBeerName())
-                .beerStyle(beer.getBeerStyle())
-                .upc(beer.getUpc())
-                .price(beer.getPrice())
-                .quantityOnHand(beer.getQuantityOnHand())
+                .beerName(beerDTO.getBeerName())
+                .beerStyle(beerDTO.getBeerStyle())
+                .upc(beerDTO.getUpc())
+                .price(beerDTO.getPrice())
+                .quantityOnHand(beerDTO.getQuantityOnHand())
                 .build();
-        beers.put(newBeer.getId(), newBeer);
-        return newBeer;
+        beers.put(newBeerDTO.getId(), newBeerDTO);
+        return newBeerDTO;
     }
 }

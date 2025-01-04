@@ -1,21 +1,21 @@
 package nl.androidappfactory.spring6restmvc.services;
 
-import nl.androidappfactory.spring6restmvc.model.Customer;
+import nl.androidappfactory.spring6restmvc.model.CustomerDTO;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface CustomerService {
-    List<Customer> getAll();
+    List<CustomerDTO> getAll();
 
-    Optional<Customer> getById(UUID id);
+    Optional<CustomerDTO> getById(UUID id);
 
-    Customer addCustomer(Customer customer);
+    CustomerDTO addCustomer(CustomerDTO customerDTO);
 
-    void updateCustomer(UUID id, Customer customer);
+    void updateCustomer(UUID id, CustomerDTO customerDTO);
 
     void delete(UUID id);
 
-    void patchCustomer(UUID id, Customer customer);
+    void patchCustomer(UUID id, CustomerDTO customerDTO);
 }

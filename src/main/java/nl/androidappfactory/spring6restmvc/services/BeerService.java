@@ -1,14 +1,15 @@
 package nl.androidappfactory.spring6restmvc.services;
 
-import nl.androidappfactory.spring6restmvc.model.Beer;
+import nl.androidappfactory.spring6restmvc.model.BeerDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BeerService {
-    Beer getBeerById(UUID id);
+    Optional<BeerDTO> getBeerById(UUID id);
 
-    List<Beer> getAllBeers();
+    List<BeerDTO> getAllBeers();
 
-    Beer addBeer(Beer beer);
+    BeerDTO addBeer(BeerDTO beerDTO);
 }

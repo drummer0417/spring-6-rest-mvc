@@ -1,7 +1,7 @@
 package nl.androidappfactory.spring6restmvc.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.androidappfactory.spring6restmvc.model.Customer;
+import nl.androidappfactory.spring6restmvc.model.CustomerDTO;
 import nl.androidappfactory.spring6restmvc.services.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,27 +47,27 @@ class CustomerControllerTest {
     private ObjectMapper objectMapper;
 
     @Captor
-    ArgumentCaptor<Customer> customerCaptor;
+    ArgumentCaptor<CustomerDTO> customerCaptor;
     @Captor
     ArgumentCaptor<UUID> uuidCaptor;
 
     @MockitoBean
     private CustomerService customerService;
 
-    List<Customer> testCustomers;
+    List<CustomerDTO> testCustomerDTOS;
 
     @BeforeEach
     void setUp() {
-        testCustomers = createTestCustomers();
+        testCustomerDTOS = createTestCustomers();
     }
 
     @Test
-    void getCustomer() throws Exception {
+    void getCustomerById() throws Exception {
         // given
-        Customer testCustomer = testCustomers.getFirst();
+        CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
 
-        Mockito.when(customerService.getById(testCustomer.getId())).thenReturn(Optional.of(testCustomer));
-        mockMvc.perform(get(CUSTOMER_PATH_ID, testCustomer.getId())
+        Mockito.when(customerService.getById(testCustomerDTO.getId())).thenReturn(Optional.of(testCustomerDTO));
+        mockMvc.perform(get(CUSTOMER_PATH_ID, testCustomerDTO.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -78,7 +78,7 @@ class CustomerControllerTest {
 
     @Test
     void getAllCustomers() throws Exception {
-        when(customerService.getAll()).thenReturn(testCustomers);
+        when(customerService.getAll()).thenReturn(testCustomerDTOS);
         mockMvc.perform(get(CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -88,47 +88,47 @@ class CustomerControllerTest {
 
     @Test
     public void postCustomer() throws Exception {
-        Customer testCustomer = testCustomers.getFirst();
+        CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
 
-        when(customerService.addCustomer(testCustomer)).thenReturn(testCustomer);
+        when(customerService.addCustomer(testCustomerDTO)).thenReturn(testCustomerDTO);
         mockMvc.perform(post(CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testCustomer)))
+                        .content(objectMapper.writeValueAsString(testCustomerDTO)))
                 .andExpect(header().exists("Location"))
                 .andExpect(status().isCreated());
     }
 
     @Test
     public void putCustomer() throws Exception {
-        Customer testCustomer = testCustomers.getFirst();
-        mockMvc.perform(put(CUSTOMER_PATH_ID, testCustomer.getId())
+        CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
+        mockMvc.perform(put(CUSTOMER_PATH_ID, testCustomerDTO.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testCustomer)))
+                .content(objectMapper.writeValueAsString(testCustomerDTO)))
                 .andExpect(status().isNoContent());
 
-        verify(customerService, times(ONCE)).updateCustomer(testCustomer.getId(), testCustomer);
+        verify(customerService, times(ONCE)).updateCustomer(testCustomerDTO.getId(), testCustomerDTO);
     }
 
     @Test
     public void deleteCustomer() throws Exception {
-        Customer testCustomer = testCustomers.getFirst();
-        mockMvc.perform(delete(CUSTOMER_PATH_ID,testCustomer.getId()))
+        CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
+        mockMvc.perform(delete(CUSTOMER_PATH_ID, testCustomerDTO.getId()))
                 .andExpect(status().isNoContent());
 
         verify(customerService, times(ONCE)).delete(uuidCaptor.capture());
-        assertThat(uuidCaptor.getValue()).isEqualTo(testCustomer.getId());
+        assertThat(uuidCaptor.getValue()).isEqualTo(testCustomerDTO.getId());
     }
 
     @Test
     public void patchCusomer() throws Exception {
-        Customer newCustomer  = Customer.builder().name("Klaas").build();
-        Customer testcustomer = testCustomers.getFirst();
+        CustomerDTO newCustomerDTO = CustomerDTO.builder().name("Klaas").build();
+        CustomerDTO testcustomer = testCustomerDTOS.getFirst();
         mockMvc.perform(patch(CUSTOMER_PATH_ID, testcustomer.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newCustomer)))
+                .content(objectMapper.writeValueAsString(newCustomerDTO)))
                 .andExpect(status().isNoContent());
 
         verify(customerService, times(ONCE)).patchCustomer(uuidCaptor.capture(), customerCaptor.capture());
@@ -160,15 +160,15 @@ class CustomerControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
-    private List<Customer> createTestCustomers() {
-        Customer customer1 = Customer.builder()
+    private List<CustomerDTO> createTestCustomers() {
+        CustomerDTO customerDTO1 = CustomerDTO.builder()
                 .id(UUID.fromString("1638fc3b-ba52-4bdb-8698-f8739728b415"))
                 .name("Hans")
                 .version("1.0")
                 .build();
-        Customer customer2 = Customer.builder().id(UUID.randomUUID()).name("PietjeP").build();
-        Customer customer3 = Customer.builder().id(UUID.randomUUID()).name("Jan met de Korteachternaam").build();
-        Customer customer4 = Customer.builder().id(UUID.randomUUID()).name("Nobody").build();
-        return Arrays.asList(customer1, customer2, customer3, customer4);
+        CustomerDTO customerDTO2 = CustomerDTO.builder().id(UUID.randomUUID()).name("PietjeP").build();
+        CustomerDTO customerDTO3 = CustomerDTO.builder().id(UUID.randomUUID()).name("Jan met de Korteachternaam").build();
+        CustomerDTO customerDTO4 = CustomerDTO.builder().id(UUID.randomUUID()).name("Nobody").build();
+        return Arrays.asList(customerDTO1, customerDTO2, customerDTO3, customerDTO4);
     }
 }
