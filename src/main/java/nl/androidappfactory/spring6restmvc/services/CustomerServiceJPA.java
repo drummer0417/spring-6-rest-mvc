@@ -1,6 +1,7 @@
 package nl.androidappfactory.spring6restmvc.services;
 
 import lombok.AllArgsConstructor;
+import nl.androidappfactory.spring6restmvc.entities.Customer;
 import nl.androidappfactory.spring6restmvc.mappers.BeerMapper;
 import nl.androidappfactory.spring6restmvc.mappers.CustomerMapper;
 import nl.androidappfactory.spring6restmvc.model.CustomerDTO;
@@ -8,9 +9,11 @@ import nl.androidappfactory.spring6restmvc.repositories.CustomerRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +23,7 @@ public class  CustomerServiceJPA implements CustomerService {
     private final BeerMapper beerMapper;
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final CustomerService customerService;
 
     @Override
     public List<CustomerDTO> getAll() {
@@ -37,12 +41,20 @@ public class  CustomerServiceJPA implements CustomerService {
 
     @Override
     public CustomerDTO addCustomer(CustomerDTO customerDTO) {
-        return null;
+        Customer savedCustomer = customerRepository.save(customerMapper.customerDtoToCustomer(customerDTO));
+        return  customerMapper.customerToCustomerDTO(savedCustomer);
     }
 
     @Override
-    public void updateCustomer(UUID id, CustomerDTO customerDTO) {
+    public Optional<CustomerDTO> updateCustomer(UUID id, CustomerDTO customerDTO) {
+        AtomicReference<Optional<CustomerDTO>> atomicReference = new AtomicReference<>();
 
+        customerRepository.findById(id).ifPresentOrElse( existingCustomer  -> {
+            existingCustomer.setName(customerDTO.getName());
+            existingCustomer.setModifiedAt(LocalDateTime.now());
+            atomicReference.set(Optional.of(customerMapper.customerToCustomerDTO(customerRepository.save(existingCustomer))));
+        }, () -> atomicReference.set(Optional.empty()));
+        return atomicReference.get();
     }
 
     @Override

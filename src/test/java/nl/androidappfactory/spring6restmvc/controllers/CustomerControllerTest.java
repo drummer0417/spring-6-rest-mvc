@@ -24,6 +24,7 @@ import static nl.androidappfactory.spring6restmvc.controllers.CustomerController
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,12 +38,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = CustomerController.class)
+@WebMvcTest(CustomerController.class)
 class CustomerControllerTest {
 
     private static final int ONCE = 1;
+
+    @MockitoBean
+    private CustomerService customerService;
+
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -50,9 +56,6 @@ class CustomerControllerTest {
     ArgumentCaptor<CustomerDTO> customerCaptor;
     @Captor
     ArgumentCaptor<UUID> uuidCaptor;
-
-    @MockitoBean
-    private CustomerService customerService;
 
     List<CustomerDTO> testCustomerDTOS;
 
@@ -65,6 +68,7 @@ class CustomerControllerTest {
     void getCustomerById() throws Exception {
         // given
         CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
+        given(customerService.getById(any())).willReturn(Optional.of(testCustomerDTO));
 
         Mockito.when(customerService.getById(testCustomerDTO.getId())).thenReturn(Optional.of(testCustomerDTO));
         mockMvc.perform(get(CUSTOMER_PATH_ID, testCustomerDTO.getId())
@@ -102,6 +106,8 @@ class CustomerControllerTest {
     @Test
     public void putCustomer() throws Exception {
         CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
+        given(customerService.updateCustomer(any(), any())).willReturn(Optional.of(testCustomerDTO));
+
         mockMvc.perform(put(CUSTOMER_PATH_ID, testCustomerDTO.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

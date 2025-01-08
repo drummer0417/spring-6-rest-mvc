@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-//@RequestMapping("/api/v1/customer")
 @AllArgsConstructor
 public class CustomerController {
     private CustomerService customerService;
@@ -33,7 +32,7 @@ public class CustomerController {
     }
 
     @PostMapping(CUSTOMER_PATH)
-    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerDTO> addCustomer(@RequestBody CustomerDTO customerDTO) {
         CustomerDTO savedCustomerDTO = customerService.addCustomer(customerDTO);
         log.info("New customer created: {}", savedCustomerDTO);
         HttpHeaders headers = new HttpHeaders();
@@ -43,7 +42,9 @@ public class CustomerController {
 
     @PutMapping(value = CUSTOMER_PATH_ID)
     public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable("customer-id") UUID id, @RequestBody CustomerDTO customerDTO) {
-        customerService.updateCustomer(id, customerDTO);
+        if (customerService.updateCustomer(id, customerDTO).isEmpty()) {
+            throw new NotFoundException();
+        }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

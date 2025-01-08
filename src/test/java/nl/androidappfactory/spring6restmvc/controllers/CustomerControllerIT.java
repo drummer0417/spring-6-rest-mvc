@@ -1,5 +1,8 @@
 package nl.androidappfactory.spring6restmvc.controllers;
 
+import lombok.extern.slf4j.Slf4j;
+import nl.androidappfactory.spring6restmvc.entities.Customer;
+import nl.androidappfactory.spring6restmvc.mappers.CustomerMapper;
 import nl.androidappfactory.spring6restmvc.model.CustomerDTO;
 import nl.androidappfactory.spring6restmvc.repositories.CustomerRepository;
 import nl.androidappfactory.spring6restmvc.services.CustomerService;
@@ -8,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +22,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Slf4j
 @SpringBootTest
 class CustomerControllerIT {
 
@@ -27,6 +33,8 @@ class CustomerControllerIT {
     @Qualifier("customerServiceJPA")
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private CustomerMapper customerMapper;
 
     @BeforeEach
     void setUp() {
@@ -58,8 +66,47 @@ class CustomerControllerIT {
 
     @Test
     void findCustomerByUnknownId() {
-        assertThrows(NotFoundException.class, () -> {
-            customerController.getCustomerById(UUID.randomUUID());
-        });
+        assertThrows(NotFoundException.class, () ->
+            customerController.getCustomerById(UUID.randomUUID()));
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void saveNewCustomer() {
+        CustomerDTO newCustomer = CustomerDTO.builder()
+                .name("New Customer")
+                .build();
+
+        ResponseEntity<CustomerDTO> responseEntity = customerController.addCustomer(newCustomer);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(201));
+        assertThat(responseEntity.getHeaders().getLocation()).isNotNull();
+        log.debug(responseEntity.getHeaders().getLocation().toString() + ".................");
+        String[] locationHeader = responseEntity.getHeaders().getLocation().getPath().split("/");
+        UUID savedUuid = UUID.fromString(locationHeader[4]);
+
+        Customer customer = customerRepository.findById(savedUuid).get();
+
+        assertThat(savedUuid).isEqualTo(customer.getId());
+    }
+
+    @Test
+    void udateCustomer() {
+        CustomerDTO customer = customerController.getAllCustomers().getFirst();
+
+        customer.setName("UPDATED Customer");
+        customerService.updateCustomer(customer.getId(), customer);
+
+        ResponseEntity<CustomerDTO> responseEntity = customerController.updateCustomer(customer.getId(), customer);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+        CustomerDTO updatedCustomer = customerMapper.customerToCustomerDTO(customerRepository.findById(customer.getId()).get());
+        assertThat("UPDATED Customer").isEqualTo(updatedCustomer.getName());
+    }
+
+    @Test
+    void updateCustomerDoesNotExist() {
+        assertThrows(NotFoundException.class, () ->
+                customerController.updateCustomer(UUID.randomUUID(), CustomerDTO.builder().build()));
     }
 }
