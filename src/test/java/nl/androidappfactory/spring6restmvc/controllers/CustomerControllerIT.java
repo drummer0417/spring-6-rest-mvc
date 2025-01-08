@@ -67,7 +67,7 @@ class CustomerControllerIT {
     @Test
     void findCustomerByUnknownId() {
         assertThrows(NotFoundException.class, () ->
-            customerController.getCustomerById(UUID.randomUUID()));
+                customerController.getCustomerById(UUID.randomUUID()));
     }
 
     @Rollback
@@ -91,6 +91,8 @@ class CustomerControllerIT {
         assertThat(savedUuid).isEqualTo(customer.getId());
     }
 
+    @Rollback
+    @Transactional
     @Test
     void udateCustomer() {
         CustomerDTO customer = customerController.getAllCustomers().getFirst();
@@ -104,9 +106,51 @@ class CustomerControllerIT {
         assertThat("UPDATED Customer").isEqualTo(updatedCustomer.getName());
     }
 
+    @Rollback
+    @Transactional
     @Test
     void updateCustomerDoesNotExist() {
         assertThrows(NotFoundException.class, () ->
                 customerController.updateCustomer(UUID.randomUUID(), CustomerDTO.builder().build()));
     }
+
+    @Rollback
+    @Transactional
+    @Test
+    void deleteCustomerById() {
+        CustomerDTO customer = customerController.getAllCustomers().getFirst();
+
+        ResponseEntity<CustomerDTO> responseEntity = customerController.deleteCustomer(customer.getId());
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+
+    }
+
+    @Test
+    void deleteCustomerDoesNotExist() {
+
+        assertThrows(NotFoundException.class, () ->
+                customerController.deleteCustomer(UUID.randomUUID()));
+    }
+
+    @Test
+    void patchCustomer() {
+        CustomerDTO existingCustomer = customerController.getAllCustomers().getFirst();
+        CustomerDTO patchCustomer = CustomerDTO.builder()
+                .name("Patched Customer")
+                .build();
+        ResponseEntity<CustomerDTO> responseEntity = customerController.patchCustomer(existingCustomer.getId(), patchCustomer);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+    }
+
+    @Test
+    void patchCustomerDoesNotExist() {
+        CustomerDTO patchCustomer = CustomerDTO.builder().build();
+
+        assertThrows(NotFoundException.class, () ->
+                customerController.patchCustomer(UUID.randomUUID(), patchCustomer)
+        );
+    }
 }
+

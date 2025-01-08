@@ -2,7 +2,6 @@ package nl.androidappfactory.spring6restmvc.services;
 
 import lombok.AllArgsConstructor;
 import nl.androidappfactory.spring6restmvc.entities.Customer;
-import nl.androidappfactory.spring6restmvc.mappers.BeerMapper;
 import nl.androidappfactory.spring6restmvc.mappers.CustomerMapper;
 import nl.androidappfactory.spring6restmvc.model.CustomerDTO;
 import nl.androidappfactory.spring6restmvc.repositories.CustomerRepository;
@@ -20,10 +19,8 @@ import java.util.stream.Collectors;
 @Primary
 @AllArgsConstructor
 public class  CustomerServiceJPA implements CustomerService {
-    private final BeerMapper beerMapper;
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
-    private final CustomerService customerService;
 
     @Override
     public List<CustomerDTO> getAll() {
@@ -58,12 +55,21 @@ public class  CustomerServiceJPA implements CustomerService {
     }
 
     @Override
-    public void delete(UUID id) {
-
+    public boolean delete(UUID id) {
+        if (!customerRepository.existsById(id)) {
+            return false;
+        }
+        customerRepository.deleteAll();
+        return true;
     }
 
     @Override
-    public void patchCustomer(UUID id, CustomerDTO customerDTO) {
-
+    public Optional<CustomerDTO> patchCustomer(UUID id, CustomerDTO updateCustomer) {
+        Customer existingCustomer = customerRepository.findById(id).orElse(null);
+        if (existingCustomer == null) {
+            return Optional.empty();
+        }
+        existingCustomer.setName(updateCustomer.getName());
+        return Optional.of(customerMapper.customerToCustomerDTO(customerRepository.save(existingCustomer)));
     }
 }

@@ -120,8 +120,22 @@ class CustomerControllerTest {
     @Test
     public void deleteCustomer() throws Exception {
         CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
+        given(customerService.delete(any(UUID.class))).willReturn(true);
+
         mockMvc.perform(delete(CUSTOMER_PATH_ID, testCustomerDTO.getId()))
                 .andExpect(status().isNoContent());
+
+        verify(customerService, times(ONCE)).delete(uuidCaptor.capture());
+        assertThat(uuidCaptor.getValue()).isEqualTo(testCustomerDTO.getId());
+    }
+
+    @Test
+    public void deleteCustomerDoesNotExist() throws Exception {
+        CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
+        given(customerService.delete(any(UUID.class))).willReturn(false);
+
+        mockMvc.perform(delete(CUSTOMER_PATH_ID, testCustomerDTO.getId()))
+                .andExpect(status().isNotFound());
 
         verify(customerService, times(ONCE)).delete(uuidCaptor.capture());
         assertThat(uuidCaptor.getValue()).isEqualTo(testCustomerDTO.getId());
@@ -131,6 +145,7 @@ class CustomerControllerTest {
     public void patchCusomer() throws Exception {
         CustomerDTO newCustomerDTO = CustomerDTO.builder().name("Klaas").build();
         CustomerDTO testcustomer = testCustomerDTOS.getFirst();
+        given(customerService.patchCustomer(testcustomer.getId(), newCustomerDTO)).willReturn(Optional.of(testcustomer));
         mockMvc.perform(patch(CUSTOMER_PATH_ID, testcustomer.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

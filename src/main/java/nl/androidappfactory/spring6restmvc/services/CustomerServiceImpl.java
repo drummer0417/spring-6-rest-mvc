@@ -80,14 +80,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void delete(UUID id) {
+    public boolean delete(UUID id) {
         customers.remove(id);
         log.debug(String.format("CustomerService deleted %s", id));
         log.debug(String.format("CustomerService deleted. # customers %s", customers.size()));
+        return true;
     }
 
     @Override
-    public void patchCustomer(UUID id, CustomerDTO customerDTO) {
+    public Optional<CustomerDTO> patchCustomer(UUID id, CustomerDTO customerDTO) {
         CustomerDTO currentCustomerDTO = customers.get(id);
         if (StringUtils.hasText(customerDTO.getName())) {
             currentCustomerDTO.setName(customerDTO.getName());
@@ -96,5 +97,6 @@ public class CustomerServiceImpl implements CustomerService {
             currentCustomerDTO.setVersion(customerDTO.getVersion());
         }
         currentCustomerDTO.setModifiedAt(LocalDateTime.now());
+        return Optional.of(customerDTO);
     }
 }
