@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Arrays;
 import java.util.List;
@@ -118,6 +119,22 @@ class CustomerControllerTest {
     }
 
     @Test
+
+    public void postCustomerWithEmptyCustomer() throws Exception {
+        CustomerDTO testCustomerDTO = CustomerDTO.builder().build();
+
+        when(customerService.addCustomer(testCustomerDTO)).thenReturn(testCustomerDTO);
+        MvcResult mvcResult = mockMvc.perform(post(CUSTOMER_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testCustomerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2)))
+                .andReturn();
+        System.out.println("mvcResult: " + mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
     public void deleteCustomer() throws Exception {
         CustomerDTO testCustomerDTO = testCustomerDTOS.getFirst();
         given(customerService.delete(any(UUID.class))).willReturn(true);
@@ -155,6 +172,21 @@ class CustomerControllerTest {
         verify(customerService, times(ONCE)).patchCustomer(uuidCaptor.capture(), customerCaptor.capture());
         assertThat(uuidCaptor.getValue()).isEqualTo(testcustomer.getId());
         assertThat(customerCaptor.getValue().getName()).isEqualTo("Klaas");
+    }
+
+    @Test
+    public void patchCusomerWithoutName() throws Exception {
+        CustomerDTO testcustomer = testCustomerDTOS.getFirst();
+        CustomerDTO newCustomerDTO = CustomerDTO.builder().build();
+
+        given(customerService.patchCustomer(testcustomer.getId(), newCustomerDTO)).willReturn(Optional.of(newCustomerDTO));
+
+        mockMvc.perform(patch(CUSTOMER_PATH_ID, testcustomer.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newCustomerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2)));
     }
 
     @Test

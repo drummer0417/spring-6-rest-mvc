@@ -2,7 +2,6 @@ package nl.androidappfactory.spring6restmvc.controllers;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.androidappfactory.spring6restmvc.entities.Beer;
 import nl.androidappfactory.spring6restmvc.model.BeerDTO;
 import nl.androidappfactory.spring6restmvc.services.BeerService;
 import org.springframework.http.HttpHeaders;
@@ -28,8 +27,7 @@ public class BeerController {
         return beerDTOS;
     }
 
-    @GetMapping
-    @RequestMapping(value = "{beer-id}")
+    @GetMapping(value = "{beer-id}")
     public BeerDTO getBeerById(@PathVariable("beer-id") UUID id) {
 
         log.debug("Get Beer by Id - in controller");
@@ -43,6 +41,6 @@ public class BeerController {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.LOCATION, "/api/v1/beer/" + savedBeerDTO.getId());
         log.debug("BeerController.addBeer(), name: {}", savedBeerDTO);
-        return new ResponseEntity<BeerDTO>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 }

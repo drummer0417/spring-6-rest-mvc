@@ -7,6 +7,7 @@ import nl.androidappfactory.spring6restmvc.services.CustomerService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class CustomerController {
     }
 
     @PostMapping(CUSTOMER_PATH)
-    public ResponseEntity<CustomerDTO> addCustomer(@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerDTO> addCustomer(@Validated @RequestBody CustomerDTO customerDTO) {
         CustomerDTO savedCustomerDTO = customerService.addCustomer(customerDTO);
         log.info("New customer created: {}", savedCustomerDTO);
         HttpHeaders headers = new HttpHeaders();
@@ -49,7 +50,7 @@ public class CustomerController {
     }
 
     @PatchMapping(CUSTOMER_PATH_ID)
-    public ResponseEntity<CustomerDTO> patchCustomer(@PathVariable("customer-id") UUID id, @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerDTO> patchCustomer(@PathVariable("customer-id") UUID id, @Validated @RequestBody CustomerDTO customerDTO) {
         if (customerService.patchCustomer(id, customerDTO).isEmpty()) {
             throw new NotFoundException();
         }
@@ -65,7 +66,7 @@ public class CustomerController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // moved mathod below to the ExceptionController so it works global (i.e. also for BeerController)
+// moved mathod below to the ExceptionController so it works global (i.e. also for BeerController)
 //    @ExceptionHandler(NotFoundException.class)
 //    public ResponseEntity handleNotFoundException () {
 //        log.debug("in handleNotFoundException.................. ");
