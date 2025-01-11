@@ -28,6 +28,7 @@ public class Customer {
     @Version
     private Long version;
     private String name;
+    private String email;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 }
