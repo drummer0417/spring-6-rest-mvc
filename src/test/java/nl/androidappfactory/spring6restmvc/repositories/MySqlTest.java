@@ -43,6 +43,6 @@ public class MySqlTest {
 
         assertThat(beers).isNotEmpty();
 
-        assertThat(beers).hasSize(3);
+        assertThat(beers).hasSize(2413);
     }
 }

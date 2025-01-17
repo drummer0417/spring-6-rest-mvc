@@ -3,7 +3,9 @@ package nl.androidappfactory.spring6restmvc.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import nl.androidappfactory.spring6restmvc.model.BeerStyle;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
@@ -35,6 +37,9 @@ public class Beer {
     private String upc;
     private Integer quantityOnHand;
     private BigDecimal price;
+
+    @CreationTimestamp
     private LocalDateTime createdDate;
+    @UpdateTimestamp
     private LocalDateTime updateDate;
 }
