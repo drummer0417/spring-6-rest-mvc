@@ -82,7 +82,7 @@ public class BootstrapData implements CommandLineRunner {
         if (beerRepository.count() == 0) {
             Beer beer1 = Beer.builder()
                     .beerName("Hertog Jan")
-                    .version(1L)
+                    .version(1)
                     .beerStyle(BeerStyle.LAGER)
                     .upc("12356")
                     .price(new BigDecimal("13.90"))
@@ -93,7 +93,7 @@ public class BootstrapData implements CommandLineRunner {
 
             Beer beer2 = Beer.builder()
                     .beerName("Bavaria")
-                    .version(1L)
+                    .version(1)
                     .beerStyle(BeerStyle.LAGER)
                     .upc("12356222")
                     .price(new BigDecimal("7.99"))
@@ -104,7 +104,7 @@ public class BootstrapData implements CommandLineRunner {
 
             Beer beer3 = Beer.builder()
                     .beerName("Corona")
-                    .version(1L)
+                    .version(1)
                     .beerStyle(BeerStyle.PILSNER)
                     .upc("12356")
                     .price(new BigDecimal("9.99"))
