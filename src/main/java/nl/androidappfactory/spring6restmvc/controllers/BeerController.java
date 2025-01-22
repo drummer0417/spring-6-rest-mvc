@@ -3,6 +3,7 @@ package nl.androidappfactory.spring6restmvc.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.androidappfactory.spring6restmvc.model.BeerDTO;
+import nl.androidappfactory.spring6restmvc.model.BeerStyle;
 import nl.androidappfactory.spring6restmvc.services.BeerService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -66,15 +67,17 @@ public class BeerController {
     }
 
     @GetMapping(value = BEER_PATH)
-    public List<BeerDTO> listBeers(@RequestParam(required = false) String beerName){
-        return beerService.listBeers(beerName);
+    public List<BeerDTO> listBeers(
+            @RequestParam(required = false) String beerName,
+            @RequestParam(required = false) BeerStyle beerStyle,
+            @RequestParam(required = false, defaultValue = "false") Boolean showInventory){
+        return beerService.listBeers(beerName, beerStyle, showInventory);
     }
 
     @GetMapping(value = BEER_PATH_ID)
     public BeerDTO getBeerById(@PathVariable("beerId") UUID beerId){
 
         log.debug("Get Beer by Id - in controller");
-
         return beerService.getBeerById(beerId).orElseThrow(NotFoundException::new);
     }
 }
