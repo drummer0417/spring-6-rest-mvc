@@ -2,11 +2,15 @@ package nl.androidappfactory.spring6restmvc.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -29,6 +33,14 @@ public class Customer {
     private Long version;
     private String name;
     private String email;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+
+    @CreationTimestamp()
+    private LocalDateTime createdDate;
+
+    @UpdateTimestamp()
+    private LocalDateTime updateDate;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "customer")
+    private Set<BeerOrder> beerOrders = new HashSet<>();
 }

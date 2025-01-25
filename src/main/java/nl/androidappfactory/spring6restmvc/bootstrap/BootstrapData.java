@@ -18,7 +18,6 @@ import org.springframework.util.ResourceUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 public class BootstrapData implements CommandLineRunner {
 
-//    private final BeerService beerService;
+    //    private final BeerService beerService;
     private final BeerCsvService beerCsvService;
     BeerRepository beerRepository;
     CustomerRepository customerRepository;
@@ -35,13 +34,9 @@ public class BootstrapData implements CommandLineRunner {
     @Transactional
     @Override
     public void run(String... args) throws FileNotFoundException {
-        beerRepository.deleteAll();
         initBeerData();
         initCustomerData();
         initFromBeerCsvFile();
-
-        log.debug("{} beers created", beerRepository.count());
-        log.debug("{} customers created", customerRepository.count());
     }
 
     private void initFromBeerCsvFile() throws FileNotFoundException {
@@ -74,8 +69,8 @@ public class BootstrapData implements CommandLineRunner {
 
                 beerRepository.save(beer);
             });
+            log.debug("{} beers created", beerRepository.count());
         }
-        log.debug("{} beers created", beerRepository.count());
     }
 
     public void initBeerData() {
@@ -87,8 +82,6 @@ public class BootstrapData implements CommandLineRunner {
                     .upc("12356")
                     .price(new BigDecimal("13.90"))
                     .quantityOnHand(24)
-                    .createdDate(LocalDateTime.now())
-                    .updateDate(LocalDateTime.now())
                     .build();
 
             Beer beer2 = Beer.builder()
@@ -98,8 +91,6 @@ public class BootstrapData implements CommandLineRunner {
                     .upc("12356222")
                     .price(new BigDecimal("7.99"))
                     .quantityOnHand(12)
-                    .createdDate(LocalDateTime.now())
-                    .updateDate(LocalDateTime.now())
                     .build();
 
             Beer beer3 = Beer.builder()
@@ -109,8 +100,6 @@ public class BootstrapData implements CommandLineRunner {
                     .upc("12356")
                     .price(new BigDecimal("9.99"))
                     .quantityOnHand(6)
-                    .createdDate(LocalDateTime.now())
-                    .updateDate(LocalDateTime.now())
                     .build();
 
             beerRepository.saveAll(Arrays.asList(beer1, beer2, beer3));
@@ -121,28 +110,24 @@ public class BootstrapData implements CommandLineRunner {
 
     public void initCustomerData() {
         if (customerRepository.count() == 0) {
+//        customerRepository.deleteAll();
             Customer customer1 = Customer.builder()
                     .name("Hans")
                     .version(1L)
-                    .createdAt(LocalDateTime.now())
-                    .modifiedAt(LocalDateTime.now())
                     .build();
 
             Customer customer2 = Customer.builder()
                     .name("Jacky")
                     .version(1L)
-                    .createdAt(LocalDateTime.now())
-                    .modifiedAt(LocalDateTime.now())
                     .build();
 
             Customer customer3 = Customer.builder()
                     .name("Kees")
                     .version(1L)
-                    .createdAt(LocalDateTime.now())
-                    .modifiedAt(LocalDateTime.now())
                     .build();
 
             customerRepository.saveAll(Arrays.asList(customer1, customer2, customer3));
+            log.debug("{} customers created", customerRepository.count());
         }
     }
 }

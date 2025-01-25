@@ -1,0 +1,1 @@
+ALTER TABLE customer RENAME COLUMN update_date22 TO update_date;

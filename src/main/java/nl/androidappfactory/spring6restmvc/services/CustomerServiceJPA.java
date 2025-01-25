@@ -48,7 +48,7 @@ public class  CustomerServiceJPA implements CustomerService {
 
         customerRepository.findById(id).ifPresentOrElse( existingCustomer  -> {
             existingCustomer.setName(customerDTO.getName());
-            existingCustomer.setModifiedAt(LocalDateTime.now());
+            existingCustomer.setUpdateDate(LocalDateTime.now());
             atomicReference.set(Optional.of(customerMapper.customerToCustomerDTO(customerRepository.save(existingCustomer))));
         }, () -> atomicReference.set(Optional.empty()));
         return atomicReference.get();

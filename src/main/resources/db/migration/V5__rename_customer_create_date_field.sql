@@ -1,0 +1,1 @@
+ALTER TABLE customer RENAME COLUMN created_date22 TO created_date;
